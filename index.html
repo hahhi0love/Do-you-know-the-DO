@@ -5,17 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>도를 아십니까? Pro 🎹</title>
     <style>
+        /* Pretendard 폰트pairing 고도화 (촌스럽지 않게) */
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root {
             --primary: #4f46e5; --accent: #ef4444; --minor-color: #10b981;
             --bg: #f8fafc; --key-white: #ffffff; --key-black: #1e293b;
-            --text-main: #1e293b; --text-sub: #64748b;
+            --text-main: #111827; --text-sub: #6b7280; /* 더 자연스러운 블랙 톤 */
         }
 
         body {
-            font-family: 'Pretendard', -apple-system, sans-serif;
+            font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
             background: var(--bg); margin: 0; padding: 10px;
             display: flex; justify-content: center; touch-action: manipulation;
+            color: var(--text-main);
         }
 
         #app {
@@ -24,10 +26,10 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px;
         }
 
-        /* 메인 로고/타이틀 추가 */
+        /* 1. 로고 색상(블랙) 및 폰트 고도화 */
         #main-title {
-            font-size: 1.8rem; font-weight: 900; color: var(--primary);
-            margin: 5px 0 10px 0; letter-spacing: -0.5px;
+            font-size: 1.8rem; font-weight: 800; color: var(--text-main); /* 자연스러운 블랙 */
+            margin: 5px 0 10px 0; letter-spacing: -0.8px; font-family: inherit; /* 시스템 폰트 상속 */
         }
 
         #controls {
@@ -36,11 +38,11 @@
         }
 
         .control-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .control-group { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .control-group { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 5px; color: var(--text-sub); }
 
         select, button {
             padding: 7px 10px; border-radius: 8px; border: 1px solid #cbd5e1;
-            background: white; font-family: inherit; font-weight: 600; cursor: pointer; font-size: 13px;
+            background: white; font-family: inherit; font-weight: 600; cursor: pointer; font-size: 13px; color: var(--text-main);
         }
 
         button.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -51,32 +53,34 @@
 
         #key-display-name { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-top: 5px; }
         
-        /* 세련된 웹 스크롤바 스타일 슬라이더 */
+        /* 2. 대폭 확장되고 세련된 스크롤바 디자인 슬라이더 */
         .scroll-container {
-            width: 95%; margin: 15px auto; display: flex; flex-direction: column; gap: 8px;
+            width: 95%; /* 가로 크기 확장 */
+            margin: 15px auto; display: flex; flex-direction: column; gap: 8px;
         }
         #scroll-range {
-            -webkit-appearance: none; width: 100%; height: 8px; background: #e2e8f0;
-            border-radius: 10px; outline: none; cursor: pointer;
+            -webkit-appearance: none; appearance: none; width: 100%; height: 8px;
+            background: #e2e8f0; border-radius: 10px; outline: none; cursor: pointer;
         }
         #scroll-range::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 60px; height: 12px;
-            background: #94a3b8; border-radius: 10px; cursor: pointer; transition: background 0.2s;
+            -webkit-appearance: none; appearance: none;
+            width: 60px; height: 12px; background: #94a3b8; /* 심플한 그레이 핸들 */
+            border-radius: 10px; cursor: pointer; transition: background 0.2s;
         }
-        #scroll-range::-webkit-slider-thumb:hover { background: var(--primary); }
+        #scroll-range::-webkit-slider-thumb:hover { background: var(--primary); /* 호버 시에만 포인트 컬러 */ }
         #scroll-range::-moz-range-thumb {
             width: 60px; height: 12px; background: #94a3b8; border: none; border-radius: 10px; cursor: pointer;
         }
 
         .instruction { font-size: 12px; font-weight: 700; color: #94a3b8; }
 
-        /* 건반 영역 */
+        /* 건반 영역 최적화 (촌스럽지 않은 그림자) */
         .keyboard-outer {
             background: #0f172a; padding: 25px 10px 10px 10px; border-radius: 20px; margin-top: auto;
         }
         .keyboard-scroll-view {
             width: 100%; overflow-x: auto; overflow-y: hidden;
-            scrollbar-width: none; -ms-overflow-style: none;
+            scrollbar-width: none; -ms-overflow-style: none; /* 스크롤바 숨김 */
         }
         .keyboard-scroll-view::-webkit-scrollbar { display: none; }
 
@@ -128,7 +132,7 @@
     
     <div class="scroll-container">
         <input type="range" id="scroll-range" min="0" max="100" value="0">
-        <div class="instruction">⬅ 슬라이더를 밀어서 건반 위치 이동 ➡</div>
+        <div class="instruction">⬅ 건반 위치 이동 ➡</div>
     </div>
 
     <div class="keyboard-outer">
@@ -188,14 +192,13 @@
         const solNames = ['도','레','미','파','솔','라','시'];
         
         let html = '';
-        // 오선지 5줄 그리기 (80, 90, 100, 110, 120)
+        // 오선지 줄 그리기 (80~120)
         for(let i=0; i<5; i++) html += `<line x1="20" y1="${80+i*10}" x2="580" y2="${80+i*10}" stroke="#e2e8f0" stroke-width="1.5"/>`;
         
-        // 낮은음자리표 '도' 위치 완벽 교정!
-        // basePos 105: 밑에서 두 번째 칸 (오선지 줄 100과 110 사이)
+        // 3단계. 낮은음자리표 '도'(C3) 위치 완전 교정! (픽셀 단위 재설정)
         const cD = clef === 'treble' 
-            ? {t:'𝄞',y:125,s:70, basePos:130} 
-            : {t:'𝄢',y:105,s:62, basePos:105}; 
+            ? {t:'𝄞',y:125,s:70, basePos:130} // 높은음자리표: C4(덧줄)
+            : {t:'𝄢',y:112,s:62, basePos:115}; // 낮은음자리표: basePos 115 -> C3(밑에서 두번째 칸)
         
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
         const p = sigPos[clef];
@@ -208,12 +211,12 @@
             const y = cD.basePos - (rootOffset * 5) - (i * 5);
             html += `<circle cx="${x}" cy="${y}" r="5.5" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}" />`;
             
-            // 덧줄 위치 조정 (오선지와 겹치지 않게 130과 70부터 시작)
-            if(y >= 135) {
+            // Ledger 라인 재조정 (낮은 도 위치 변경에 따른 임계값 수정)
+            if(y >= 130) {
                 for(let lineY = 130; lineY <= y; lineY += 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
-            } else if(y <= 65) {
-                for(let lineY = 70; lineY >= y; lineY -= 10)
+            } else if(y <= 75) {
+                for(let lineY = 80; lineY >= y; lineY -= 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
             }
             html += `<text x="${x}" y="175" text-anchor="middle" font-size="14" font-weight="900" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}">${solNames[i]}</text>`;
@@ -242,6 +245,7 @@
     const scrollView = document.getElementById('scroll-view');
     const scrollRange = document.getElementById('scroll-range');
 
+    // 슬라이더 <-> 건반 스크롤 양방향 동기화
     scrollRange.oninput = () => {
         const maxScroll = scrollView.scrollWidth - scrollView.clientWidth;
         scrollView.scrollLeft = (scrollRange.value / 100) * maxScroll;
