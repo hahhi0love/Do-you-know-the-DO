@@ -116,7 +116,7 @@
     <div id="controls">
         <div class="control-row">
             <div class="control-group">🎹 건반 수 <select id="key-count" onchange="initApp()"><option value="24">24</option><option value="36">36</option><option value="48" selected>48</option></select></div>
-            <div class="control-group">✨ 소리 <select id="inst-select"><option value="glockenspiel">글로켄슈필</option><option value="kalimba">칼림바</option></select></div>
+            <div class="control-group">✨ 소리 <select id="inst-select"><option value="glockenspiel">피아노</option><option value="kalimba">칼림바</option></select></div>
         </div>
         <div class="control-row">
             <select id="clef-select" onchange="drawStaff()"><option value="treble">높은음자리표</option><option value="bass">낮은음자리표</option></select>
@@ -198,7 +198,7 @@
         // 3단계. 낮은음자리표 '도'(C3) 위치 완전 교정! (픽셀 단위 재설정)
         const cD = clef === 'treble' 
             ? {t:'𝄞',y:125,s:70, basePos:130} // 높은음자리표: C4(덧줄)
-            : {t:'𝄢',y:112,s:62, basePos:115}; // 낮은음자리표: basePos 115 -> C3(밑에서 두번째 칸)
+            : {t:'𝄢',y:122,s:62, basePos:115}; // 낮은음자리표: basePos 115 -> C3(밑에서 두번째 칸)
         
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
         const p = sigPos[clef];
