@@ -16,7 +16,7 @@
         #minor-btn.minor-mode { background: var(--minor); }
         #staff-container { background: white; margin: 10px auto; width: 100%; border: 1px solid #f1f5f9; border-radius: 12px; }
         #staff-svg { width: 100%; height: auto; display: block; }
-        #key-name { font-size: 1.2rem; font-weight: 800; color: #1e293b; }
+        #key-name { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
         .keyboard-container { background: #1e293b; padding: 20px 5px; border-radius: 15px; margin-top: 10px; }
         .keyboard-scroll-view { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; cursor: grab; }
         .keyboard-track { display: inline-flex; position: relative; height: 250px; padding: 0 10px; }
@@ -30,8 +30,8 @@
 <div id="app">
     <div id="controls">
         <div class="control-row">
-            <div class="control-group"><label>🎹 건반:</label><select id="key-count" onchange="initApp()"><option value="24">24</option><option value="36">36</option><option value="48" selected>48</option></select></div>
-            <div class="control-group"><label>🎻 악기:</label><select id="inst-select"><option value="piano">피아노</option><option value="recorder">리코더</option><option value="violin">바이올린</option><option value="glockenspiel">글로켄슈필</option></select></div>
+            <div class="control-group"><label>🎹 건반 수:</label><select id="key-count" onchange="initApp()"><option value="24">24</option><option value="36">36</option><option value="48" selected>48</option></select></div>
+            <div class="control-group"><label>✨ 악기 소리:</label><select id="inst-select"><option value="glockenspiel">글로켄슈필</option><option value="kalimba">칼림바</option></select></div>
         </div>
         <div class="control-row">
             <select id="clef-select" onchange="drawStaff()"><option value="treble">높은음자리표</option><option value="bass">낮은음자리표</option><option value="alto">가온음자리표</option></select>
@@ -40,8 +40,8 @@
             <button id="all-show-btn" onclick="toggleAllShow()">전체 표시: OFF</button>
         </div>
     </div>
-    <div id="staff-container"><svg id="staff-svg" viewBox="0 0 600 200"></svg></div>
-    <div id="info-panel"><div id="key-name">C Major (다장조)</div></div>
+    <div id="staff-container"><svg id="staff-svg" viewBox="0 0 600 220"></svg></div>
+    <div id="info-panel"><div id="key-name">다장조 (C Major)</div></div>
     <div class="keyboard-container"><div class="keyboard-scroll-view"><div class="keyboard-track" id="keyboard"></div></div></div>
 </div>
 
@@ -52,13 +52,16 @@
     const krNames = {"0M":"다장조","1M":"내림 라장조","2M":"라장조","3M":"내림 마장조","4M":"마장조","5M":"바장조","6M":"올림 바장조","7M":"사장조","8M":"내림 가장조","9M":"가장조","10M":"내림 나장조","11M":"나장조","0m":"가단조","2m":"나단조","3m":"다단조","5m":"라단조","7m":"마단조"};
     const signatures = {0:0,1:-5,2:2,3:-3,4:4,5:-1,6:6,7:1,8:-4,9:3,10:-2,11:5};
     const sigPos = {treble:{s:[-4,-1,-5,-2,1,-3,0],f:[0,-3,1,-2,-5,-1,-4]},bass:{s:[-2,1,-3,0,3,-1,2],f:[2,-1,3,0,-3,1,-2]},alto:{s:[-3,0,-4,-1,2,-2,1],f:[1,-2,2,-1,-4,0,-3]}};
+    
+    // 조별 '도'의 오선지 높이 오프셋 (다장조 기준 위아래 칸수)
+    const staffSteps = {0:0, 1:1, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:5, 9:5, 10:6, 11:6};
 
     function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }
     function playSound(freq) {
         initAudio(); const type = document.getElementById('inst-select').value;
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
         osc.frequency.value = freq;
-        if(type==='piano') osc.type='triangle'; else if(type==='violin') osc.type='sawtooth'; else osc.type='sine';
+        if(type==='glockenspiel') osc.type='triangle'; else osc.type='sine';
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8); osc.stop(audioCtx.currentTime + 1);
     }
@@ -68,20 +71,42 @@
         const rootIdx = currentRoot % 12; const sigVal = signatures[rootIdx];
         const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];
         const solNames = ['도','레','미','파','솔','라','시'];
+        
         let html = '';
-        for(let i=0; i<5; i++) html += `<line x1="20" y1="${60+i*10}" x2="580" y2="${60+i*10}" stroke="#cbd5e1" stroke-width="1.5"/>`;
-        const cD = {treble:{t:'𝄞',y:105,s:65},bass:{t:'𝄢',y:90,s:55},alto:{t:'𝄡',y:100,s:60}}[clef];
+        // 오선 그리기
+        for(let i=0; i<5; i++) html += `<line x1="20" y1="${70+i*10}" x2="580" y2="${70+i*10}" stroke="#cbd5e1" stroke-width="1.5"/>`;
+        
+        const cD = {treble:{t:'𝄞',y:115,s:65},bass:{t:'𝄢',y:100,s:55},alto:{t:'𝄡',y:110,s:60}}[clef];
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}">${cD.t}</text>`;
+        
+        // 조표 그리기
         const p = sigPos[clef];
-        if(sigVal>0) for(let i=0; i<sigVal; i++) html += `<text x="${95+i*14}" y="${85+p.s[i]*5}" font-size="24">♯</text>`;
-        else if(sigVal<0) for(let i=0; i<Math.abs(sigVal); i++) html += `<text x="${95+i*14}" y="${85+p.f[i]*5}" font-size="24">♭</text>`;
+        if(sigVal>0) for(let i=0; i<sigVal; i++) html += `<text x="${95+i*14}" y="${95+p.s[i]*5}" font-size="24">♯</text>`;
+        else if(sigVal<0) for(let i=0; i<Math.abs(sigVal); i++) html += `<text x="${95+i*14}" y="${95+p.f[i]*5}" font-size="24">♭</text>`;
+        
+        // 음표 위치 계산 로직 수정 (다장조 도 위치: y=120)
+        const basePos = 120;
+        const rootOffset = staffSteps[rootIdx]; // 으뜸음이 다(C)에서 몇 칸 떨어져 있는지
+
         steps.forEach((step, i) => {
-            const x = 230 + i*50; const y = 110 - i*5;
+            const x = 230 + i*50;
+            // 으뜸음 위치 + 다이어토닉 계단 위치 계산
+            const noteStep = rootOffset + Math.floor(steps[i]/1.7); // 음계 간격에 따른 오선 높이 보정
+            let y = basePos - (noteStep * 5);
+            
+            // 시각적 보정 (도레미파솔라시가 예쁘게 계단형으로 보이게 함)
+            const visualSteps = [0, 1, 2, 3, 4, 5, 6];
+            y = basePos - (rootOffset * 5) - (visualSteps[i] * 5);
+
             html += `<circle cx="${x}" cy="${y}" r="6" fill="#1e293b" />`;
-            if(y>=110) html += `<line x1="${x-12}" y1="110" x2="${x+12}" y2="110" stroke="#000" stroke-width="2"/>`;
-            html += `<text x="${x}" y="145" text-anchor="middle" font-size="14" font-weight="bold" fill="${i===0?'#ef4444':'#475569'}">${solNames[i]}</text>`;
-            html += `<text x="${x}" y="165" text-anchor="middle" font-size="12" fill="#94a3b8">${baseNotes[(rootIdx+step)%12].n}</text>`;
-            html += `<text x="${x}" y="185" text-anchor="middle" font-size="12" fill="#64748b">${baseNotes[(rootIdx+step)%12].k}</text>`;
+            
+            // 가온줄(덧줄) 그리기 (낮은 도 등 오선 밖으로 나갈 때)
+            if(y >= 120) html += `<line x1="${x-12}" y1="120" x2="${x+12}" y2="120" stroke="#000" stroke-width="2"/>`;
+            if(y <= 60) html += `<line x1="${x-12}" y1="60" x2="${x+12}" y2="60" stroke="#000" stroke-width="2"/>`;
+
+            html += `<text x="${x}" y="165" text-anchor="middle" font-size="14" font-weight="bold" fill="${i===0?'#ef4444':'#475569'}">${solNames[i]}</text>`;
+            html += `<text x="${x}" y="185" text-anchor="middle" font-size="12" fill="#94a3b8">${baseNotes[(rootIdx+step)%12].n}</text>`;
+            html += `<text x="${x}" y="205" text-anchor="middle" font-size="12" fill="#64748b">${baseNotes[(rootIdx+step)%12].k}</text>`;
         });
         svg.innerHTML = html;
     }
