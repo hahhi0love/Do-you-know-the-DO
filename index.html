@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ko"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;도를 아십니까? Pro 🎹&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>:root { --primary: #4f46e5; --accent: #ef4444; --minor: #10b981; --bg: #f1f5f9; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; touch-action: pan-y; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#app { background: white; width: 100%; max-width: 1000px; min-height: 95vh; padding: 20px; border-radius: 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#controls { background: #f8fafc; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #e2e8f0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.control-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.control-group { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: #475569; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>button { padding: 8px 12px; border-radius: 8px; border: none; background: #64748b; color: white; font-weight: bold; cursor: pointer; min-width: 90px; font-size: 12px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>button.active { background: var(--accent); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#minor-btn.minor-mode { background: var(--minor); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#staff-container { background: white; margin: 10px auto; width: 100%; border: 1px solid #f1f5f9; border-radius: 12px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#staff-svg { width: 100%; height: auto; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#key-name { font-size: 1.2rem; font-weight: 800; color: #1e293b; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.keyboard-container { background: #1e293b; padding: 20px 5px; border-radius: 15px; margin-top: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.keyboard-scroll-view { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; cursor: grab; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.keyboard-track { display: inline-flex; position: relative; height: 250px; padding: 0 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.key { width: 50px; height: 100%; border: 1px solid #000; background: white; cursor: pointer; position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 10px; border-radius: 0 0 8px 8px; flex-shrink: 0; user-select: none; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.key.black { background: #0f172a; color: white; width: 34px; height: 150px; margin-left: -17px; margin-right: -17px; z-index: 2; border: none; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.key.active { background: #e0e7ff; box-shadow: inset 0 -10px 0 var(--primary); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.solfege { font-weight: 900; font-size: 18px; color: var(--accent); pointer-events: none; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1">&lt;div id="app"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="control-row"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="control-group"&gt;&lt;label&gt;🎹 건반:&lt;/label&gt;&lt;select id="key-count" onchange="initApp()"&gt;&lt;option value="24"&gt;24&lt;/option&gt;&lt;option value="36"&gt;36&lt;/option&gt;&lt;option value="48" selected&gt;48&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="control-group"&gt;&lt;label&gt;🎻 악기:&lt;/label&gt;&lt;select id="inst-select"&gt;&lt;option value="piano"&gt;피아노&lt;/option&gt;&lt;option value="recorder"&gt;리코더&lt;/option&gt;&lt;option value="violin"&gt;바이올린&lt;/option&gt;&lt;option value="glockenspiel"&gt;글로켄슈필&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="control-row"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;select id="clef-select" onchange="drawStaff()"&gt;&lt;option value="treble"&gt;높은음자리표&lt;/option&gt;&lt;option value="bass"&gt;낮은음자리표&lt;/option&gt;&lt;option value="alto"&gt;가온음자리표&lt;/option&gt;&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="minor-btn" onclick="toggleMinor()"&gt;장조(Major)&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="lock-btn" onclick="toggleLock()"&gt;음계 고정: OFF&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="all-show-btn" onclick="toggleAllShow()"&gt;전체 표시: OFF&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="staff-container"&gt;&lt;svg id="staff-svg" viewBox="0 0 600 200"&gt;&lt;/svg&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="info-panel"&gt;&lt;div id="key-name"&gt;C Major (다장조)&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="keyboard-container"&gt;&lt;div class="keyboard-scroll-view"&gt;&lt;div class="keyboard-track" id="keyboard"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let audioCtx;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let isLocked = false, isAllShow = false, isMinor = false, currentRoot = 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const baseNotes = [{n:'C',k:'다',b:false,f:130.81},{n:'C#',k:'올림 다',b:true,f:138.59},{n:'D',k:'라',b:false,f:146.83},{n:'Eb',k:'내림 마',b:true,f:155.56},{n:'E',k:'마',b:false,f:164.81},{n:'F',k:'바',b:false,f:174.61},{n:'F#',k:'올림 바',b:true,f:185.00},{n:'G',k:'사',b:false,f:196.00},{n:'Ab',k:'내림 가',b:true,f:207.65},{n:'A',k:'가',b:false,f:220.00},{n:'Bb',k:'내림 나',b:true,f:233.08},{n:'B',k:'나',b:false,f:246.94}];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const krNames = {"0M":"다장조","1M":"내림 라장조","2M":"라장조","3M":"내림 마장조","4M":"마장조","5M":"바장조","6M":"올림 바장조","7M":"사장조","8M":"내림 가장조","9M":"가장조","10M":"내림 나장조","11M":"나장조","0m":"가단조","2m":"나단조","5m":"라단조","7m":"마단조"};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const signatures = {0:0,1:-5,2:2,3:-3,4:4,5:-1,6:6,7:1,8:-4,9:3,10:-2,11:5};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const sigPos = {treble:{s:[-4,-1,-5,-2,1,-3,0],f:[0,-3,1,-2,-5,-1,-4]},bass:{s:[-2,1,-3,0,3,-1,2],f:[2,-1,3,0,-3,1,-2]},alto:{s:[-3,0,-4,-1,2,-2,1],f:[1,-2,2,-1,-4,0,-3]}};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function playSound(freq) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>initAudio(); const type = document.getElementById('inst-select').value;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>osc.frequency.value = freq;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if(type==='piano') osc.type='triangle'; else if(type==='violin') osc.type='sawtooth'; else osc.type='sine';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>osc.connect(gain); gain.connect(audioCtx.destination);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8); osc.stop(audioCtx.currentTime + 1);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function drawStaff() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = document.getElementById('staff-svg'); const clef = document.getElementById('clef-select').value;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const rootIdx = currentRoot % 12; const sigVal = signatures[rootIdx];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const solNames = ['도','레','미','파','솔','라','시'];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let html = '';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0; i&lt;5; i++) html += `&lt;line x1="20" y1="${60+i*10}" x2="580" y2="${60+i*10}" stroke="#cbd5e1" stroke-width="1.5"/&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const cD = {treble:{t:'𝄞',y:105,s:65},bass:{t:'𝄢',y:90,s:55},alto:{t:'𝄡',y:100,s:60}}[clef];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>html += `&lt;text x="30" y="${cD.y}" font-size="${cD.s}"&gt;${cD.t}&lt;/text&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const p = sigPos[clef];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if(sigVal&gt;0) for(let i=0; i&lt;sigVal; i++) html += `&lt;text x="${95+i*14}" y="${85+p.s[i]*5}" font-size="24"&gt;♯&lt;/text&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>else if(sigVal&lt;0) for(let i=0; i&lt;Math.abs(sigVal); i++) html += `&lt;text x="${95+i*14}" y="${85+p.f[i]*5}" font-size="24"&gt;♭&lt;/text&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>steps.forEach((step, i) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const x = 230 + i*50; const y = 110 - i*5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>html += `&lt;circle cx="${x}" cy="${y}" r="6" fill="#1e293b" /&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(y&gt;=110) html += `&lt;line x1="${x-12}" y1="110" x2="${x+12}" y2="110" stroke="#000" stroke-width="2"/&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>html += `&lt;text x="${x}" y="145" text-anchor="middle" font-size="14" font-weight="bold" fill="${i===0?'#ef4444':'#475569'}"&gt;${solNames[i]}&lt;/text&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>html += `&lt;text x="${x}" y="165" text-anchor="middle" font-size="12" fill="#94a3b8"&gt;${baseNotes[(rootIdx+step)%12].n}&lt;/text&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>html += `&lt;text x="${x}" y="185" text-anchor="middle" font-size="12" fill="#64748b"&gt;${baseNotes[(rootIdx+step)%12].k}&lt;/text&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.innerHTML = html;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateUI(root) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if(!isLocked) currentRoot = root;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const numKeys = parseInt(document.getElementById('key-count').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.querySelectorAll('.solfege').forEach(el =&gt; el.innerText = '');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.querySelectorAll('.key').forEach(el =&gt; el.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0; i&lt;numKeys; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const diff = ((i-currentRoot)%12+12)%12; const sIdx = steps.indexOf(diff);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(sIdx!==-1 &amp;&amp; (isAllShow || (i&gt;=currentRoot &amp;&amp; i&lt;currentRoot+12))) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById(`s-${i}`).innerText = ['도','레','미','파','솔','라','시'][sIdx];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.querySelector(`[data-index="${i}"]`).classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const keyKey = (currentRoot%12)+(isMinor?'m':'M');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('key-name').innerText = (krNames[keyKey] || baseNotes[currentRoot%12].k + (isMinor?'단조':'장조'));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>drawStaff();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function initApp() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const numKeys = parseInt(document.getElementById('key-count').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const kb = document.getElementById('keyboard'); kb.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0; i&lt;numKeys; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const note = baseNotes[i%12]; const key = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>key.className = `key ${note.b?'black':''}`; key.dataset.index = i;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>key.innerHTML = `&lt;span class="solfege" id="s-${i}"&gt;&lt;/span&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>key.onmousedown = () =&gt; { initAudio(); playSound(note.f * Math.pow(2, Math.floor(i/12))); if(!isLocked) updateUI(i); };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>kb.appendChild(key);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateUI(currentRoot);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function toggleMinor() { isMinor = !isMinor; document.getElementById('minor-btn').innerText = isMinor?"단조(Minor)":"장조(Major)"; document.getElementById('minor-btn').classList.toggle('minor-mode'); updateUI(currentRoot); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').classList.toggle('active'); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function toggleAllShow() { isAllShow = !isAllShow; document.getElementById('all-show-btn').classList.toggle('active'); updateUI(currentRoot); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>initApp();</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
