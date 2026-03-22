@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>도를 아십니까? Pro 🎹</title>
     <style>
-        /* 폰트 및 디자인 변수 설정 */
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root {
             --primary: #4f46e5;
@@ -19,13 +18,12 @@
         }
 
         body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-family: 'Pretendard', -apple-system, sans-serif;
             background: var(--bg);
             margin: 0;
             padding: 10px;
             display: flex;
             justify-content: center;
-            color: var(--text-main);
         }
 
         #app {
@@ -39,74 +37,68 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
         }
 
-        /* 컨트롤 패널 스타일 */
         #controls {
             background: #f1f5f9;
-            padding: 20px;
+            padding: 15px;
             border-radius: 18px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             border: 1px solid #e2e8f0;
         }
 
         .control-row {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
             align-items: center;
         }
 
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-        }
+        .control-group { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
 
         select, button {
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-radius: 10px;
             border: 1px solid #cbd5e1;
             background: white;
             font-family: inherit;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        button:hover { background: #f8fafc; transform: translateY(-1px); }
         button.active { background: var(--primary); color: white; border-color: var(--primary); }
-        #minor-btn.minor-mode { background: var(--minor-color); color: white; border-color: var(--minor-color); }
+        #minor-btn.minor-mode { background: var(--minor-color); color: white; }
 
-        /* 오선지 스타일 */
         #staff-container {
             background: white;
-            margin: 5px auto;
-            width: 100%;
             border: 1px solid #f1f5f9;
             border-radius: 16px;
             padding: 10px;
         }
-        #staff-svg { width: 100%; height: auto; max-height: 250px; }
+        #staff-svg { width: 100%; height: auto; max-height: 220px; }
 
+        /* 음계 및 안내 문구 스타일 */
         #key-display-name {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 800;
-            color: var(--primary);
-            margin: 10px 0;
-            letter-spacing: -0.5px;
+            color: var(--text-main);
+            margin-top: 10px;
+        }
+        .instruction {
+            font-size: 13px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 5px;
         }
 
-        /* 건반 스타일 */
+        /* 건반 영역 */
         .keyboard-container {
             background: #0f172a;
-            padding: 25px 10px;
+            padding: 30px 10px 15px 10px;
             border-radius: 20px;
             margin-top: auto;
         }
@@ -114,15 +106,15 @@
         .keyboard-scroll-view {
             width: 100%;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
             cursor: grab;
+            border-radius: 10px;
         }
 
         .keyboard-track {
             display: inline-flex;
             position: relative;
             height: 280px;
-            padding-bottom: 5px;
+            padding-bottom: 10px;
         }
 
         .key {
@@ -130,7 +122,7 @@
             height: 100%;
             background: var(--key-white);
             border: 1px solid #e2e8f0;
-            border-radius: 0 0 8px 8px;
+            border-radius: 0 0 10px 10px;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -139,36 +131,44 @@
             padding-bottom: 15px;
             flex-shrink: 0;
             user-select: none;
-            transition: background 0.1s;
+            box-shadow: 0 4px 0 #cbd5e1;
         }
 
         .key.black {
             width: 38px;
-            height: 160px;
+            height: 165px;
             background: var(--key-black);
             margin-left: -19px;
             margin-right: -19px;
             z-index: 2;
             border: none;
-            color: #94a3b8;
+            box-shadow: 0 4px 0 #000;
         }
 
-        .key.active { background: #e0e7ff; box-shadow: inset 0 -12px 0 var(--primary); }
+        .key.active { background: #eef2ff; box-shadow: inset 0 -12px 0 var(--primary); }
         .key.black.active { background: #334155; }
 
-        /* 건반 위 텍스트 */
-        .key-info { display: flex; flex-direction: column; gap: 4px; pointer-events: none; }
-        .solfege { font-weight: 900; font-size: 18px; color: var(--accent); }
-        .pitch-name { font-size: 11px; font-weight: 600; color: var(--text-sub); }
-        .kr-name { font-size: 12px; font-weight: 700; color: #94a3b8; }
+        /* 건반 위 글자들 */
+        .key-label-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            pointer-events: none;
+        }
+        .solfege-label { font-weight: 900; font-size: 19px; color: var(--accent); margin-bottom: 5px; height: 24px; }
+        .pitch-label { font-size: 11px; font-weight: 700; color: #64748b; }
+        .key.black .pitch-label { color: #94a3b8; }
+        .kr-label { font-size: 11px; font-weight: 600; color: #cbd5e1; }
+        .key.black .kr-label { color: #475569; }
     </style>
 </head>
 <body>
 <div id="app">
     <div id="controls">
         <div class="control-row">
-            <div class="control-group">🎹 건반 수 <select id="key-count" onchange="initApp()"><option value="24">24</option><option value="36">36</option><option value="48" selected>48</option></select></div>
-            <div class="control-group">✨ 악기 소리 <select id="inst-select"><option value="glockenspiel">글로켄슈필</option><option value="kalimba">칼림바</option></select></div>
+            <div class="control-group">🎹 건반 <select id="key-count" onchange="initApp()"><option value="24">24</option><option value="36">36</option><option value="48" selected>48</option></select></div>
+            <div class="control-group">✨ 소리 <select id="inst-select"><option value="glockenspiel">글로켄슈필</option><option value="kalimba">칼림바</option></select></div>
         </div>
         <div class="control-row">
             <select id="clef-select" onchange="drawStaff()"><option value="treble">높은음자리표</option><option value="bass">낮은음자리표</option><option value="alto">가온음자리표</option></select>
@@ -179,7 +179,9 @@
     </div>
 
     <div id="staff-container"><svg id="staff-svg" viewBox="0 0 600 240"></svg></div>
+    
     <div id="key-display-name">다장조 (C Major)</div>
+    <div class="instruction">↕ 건반 윗부분(검은색 바)을 잡고 좌우로 미세요</div>
 
     <div class="keyboard-container">
         <div class="keyboard-scroll-view">
@@ -192,13 +194,14 @@
     let audioCtx;
     let isLocked = false, isAllShow = false, isMinor = false, currentRoot = 0;
 
-    // 데이터 베이스 (음높이, 이름 등)
-    const baseNotes = [{n:'C',k:'다',b:false,f:130.81},{n:'C#',k:'올림 다',b:true,f:138.59},{n:'D',k:'라',b:false,f:146.83},{n:'Eb',k:'내림 마',b:true,f:155.56},{n:'E',k:'마',b:false,f:164.81},{n:'F',k:'바',b:false,f:174.61},{n:'F#',k:'올림 바',b:true,f:185.00},{n:'G',k:'사',b:false,f:196.00},{n:'Ab',k:'내림 가',b:true,f:207.65},{n:'A',k:'가',b:false,f:220.00},{n:'Bb',k:'내림 나',b:true,f:233.08},{n:'B',k:'나',b:false,f:246.94}];
+    const baseNotes = [
+        {n:'C',k:'다',b:false,f:130.81},{n:'C#',k:'올림 다',b:true,f:138.59},{n:'D',k:'라',b:false,f:146.83},{n:'Eb',k:'내림 마',b:true,f:155.56},
+        {n:'E',k:'마',b:false,f:164.81},{n:'F',k:'바',b:false,f:174.61},{n:'F#',k:'올림 바',b:true,f:185.00},{n:'G',k:'사',b:false,f:196.00},
+        {n:'Ab',k:'내림 가',b:true,f:207.65},{n:'A',k:'가',b:false,f:220.00},{n:'Bb',k:'내림 나',b:true,f:233.08},{n:'B',k:'나',b:false,f:246.94}
+    ];
     const krKeyNames = {"0M":"다장조","1M":"내림 라장조","2M":"라장조","3M":"내림 마장조","4M":"마장조","5M":"바장조","6M":"올림 바장조","7M":"사장조","8M":"내림 가장조","9M":"가장조","10M":"내림 나장조","11M":"나장조","0m":"가단조","2m":"나단조","3m":"다단조","5m":"라단조","7m":"마단조"};
     const signatures = {0:0,1:-5,2:2,3:-3,4:4,5:-1,6:6,7:1,8:-4,9:3,10:-2,11:5};
     const sigPos = {treble:{s:[-4,-1,-5,-2,1,-3,0],f:[0,-3,1,-2,-5,-1,-4]},bass:{s:[-2,1,-3,0,3,-1,2],f:[2,-1,3,0,-3,1,-2]},alto:{s:[-3,0,-4,-1,2,-2,1],f:[1,-2,2,-1,-4,0,-3]}};
-    
-    // 오선지 줄/칸 위치 계산 (다장조 C4 기준 0)
     const stepMap = {0:0, 1:0, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:5, 9:5, 10:6, 11:6};
 
     function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }
@@ -209,19 +212,17 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.frequency.value = freq;
-        
         if(type === 'glockenspiel') {
             osc.type = 'triangle';
             gain.gain.setValueAtTime(0, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.01);
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
-        } else { // Kalimba
+        } else { 
             osc.type = 'sine';
             gain.gain.setValueAtTime(0, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.02);
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
         }
-        
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + 1.5);
     }
@@ -235,29 +236,20 @@
         const solNames = ['도','레','미','파','솔','라','시'];
         
         let html = '';
-        // 오선 그리기 (높이 중심 100)
         for(let i=0; i<5; i++) html += `<line x1="20" y1="${80+i*10}" x2="580" y2="${80+i*10}" stroke="#e2e8f0" stroke-width="1.5"/>`;
         
         const cD = {treble:{t:'𝄞',y:125,s:70, basePos:130},bass:{t:'𝄢',y:110,s:60, basePos:110},alto:{t:'𝄡',y:120,s:65, basePos:120}}[clef];
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
         
-        // 조표 그리기
         const p = sigPos[clef];
         if(sigVal>0) for(let i=0; i<sigVal; i++) html += `<text x="${95+i*14}" y="${105+p.s[i]*5}" font-size="24">♯</text>`;
         else if(sigVal<0) for(let i=0; i<Math.abs(sigVal); i++) html += `<text x="${95+i*14}" y="${105+p.f[i]*5}" font-size="24">♭</text>`;
         
-        // '도'의 오선지 위치 계산 (중요: 여기서 으뜸음에 따라 위치가 바뀜)
         const rootOffset = stepMap[rootIdx]; 
-
         steps.forEach((step, i) => {
             const x = 240 + i*45;
-            // 으뜸음 위치 + 계단식 오름 (온음/반음 무관하게 오선에서는 한 칸씩 오름)
             const y = cD.basePos - (rootOffset * 5) - (i * 5);
-            
-            // 음표 머리
             html += `<circle cx="${x}" cy="${y}" r="5.5" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}" />`;
-            
-            // 덧줄 처리
             if(y >= 130) {
                 for(let lineY = 130; lineY <= y; lineY += 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
@@ -265,8 +257,6 @@
                 for(let lineY = 70; lineY >= y; lineY -= 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
             }
-
-            // 하단 텍스트 정보
             html += `<text x="${x}" y="175" text-anchor="middle" font-size="14" font-weight="900" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}">${solNames[i]}</text>`;
             html += `<text x="${x}" y="195" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text-sub)">${baseNotes[(rootIdx+step)%12].n}</text>`;
             html += `<text x="${x}" y="210" text-anchor="middle" font-size="11" fill="#94a3b8">${baseNotes[(rootIdx+step)%12].k}</text>`;
@@ -279,30 +269,24 @@
         const numKeys = parseInt(document.getElementById('key-count').value);
         const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];
         
-        document.querySelectorAll('.key-info').forEach(el => el.innerHTML = '');
-        document.querySelectorAll('.key').forEach(el => el.classList.remove('active'));
-        
-        for(let i=0; i<numKeys; i++) {
+        document.querySelectorAll('.key').forEach((keyEl, i) => {
             const diff = ((i-currentRoot)%12+12)%12;
             const sIdx = steps.indexOf(diff);
-            const keyEl = document.querySelector(`[data-index="${i}"]`);
-            const infoEl = keyEl.querySelector('.key-info');
+            const solLabel = keyEl.querySelector('.solfege-label');
             
             if(sIdx !== -1 && (isAllShow || (i>=currentRoot && i<currentRoot+12))) {
-                const solName = ['도','레','미','파','솔','라','시'][sIdx];
-                infoEl.innerHTML = `<span class="solfege">${solName}</span>`;
+                solLabel.innerText = ['도','레','미','파','솔','라','시'][sIdx];
                 keyEl.classList.add('active');
+            } else {
+                solLabel.innerText = '';
+                keyEl.classList.remove('active');
             }
-            
-            // 고정된 정보(음이름 등)는 항상 표시
-            const note = baseNotes[i%12];
-            const octave = Math.floor(i/12) + 3;
-            infoEl.innerHTML += `<span class="pitch-name">${note.n}${octave}</span>`;
-            infoEl.innerHTML += `<span class="kr-name">${note.k}</span>`;
-        }
+        });
         
         const keyKey = (currentRoot%12)+(isMinor?'m':'M');
-        document.getElementById('key-display-name').innerText = (krKeyNames[keyKey] || baseNotes[currentRoot%12].k + (isMinor?'단조':'장조')) + ` (${baseNotes[currentRoot%12].n} ${isMinor?'Minor':'Major'})`;
+        const engName = baseNotes[currentRoot%12].n + (isMinor?' Minor':' Major');
+        const korName = (krKeyNames[keyKey] || baseNotes[currentRoot%12].k + (isMinor?'단조':'장조'));
+        document.getElementById('key-display-name').innerText = `${korName} (${engName})`;
         drawStaff();
     }
 
@@ -312,10 +296,19 @@
         kb.innerHTML = '';
         for(let i=0; i<numKeys; i++) {
             const note = baseNotes[i%12];
+            const octave = Math.floor(i/12) + 3;
             const key = document.createElement('div');
             key.className = `key ${note.b?'black':''}`;
             key.dataset.index = i;
-            key.innerHTML = `<div class="key-info"></div>`;
+            
+            // 모든 건반에 음명(C4, C#4 등)과 우리말(다, 올림 다) 표기 복원
+            key.innerHTML = `
+                <div class="key-label-group">
+                    <span class="solfege-label"></span>
+                    <span class="pitch-label">${note.n}${octave}</span>
+                    <span class="kr-label">${note.k}</span>
+                </div>
+            `;
             
             const handlePress = (e) => {
                 e.preventDefault();
