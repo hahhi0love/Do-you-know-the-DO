@@ -20,90 +20,84 @@
 
         #app {
             background: white; width: 100%; max-width: 1100px; min-height: 98vh;
-            padding: 25px; border-radius: 24px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px;
+            padding: 20px; border-radius: 24px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px;
         }
 
         #controls {
-            background: #f1f5f9; padding: 15px; border-radius: 18px;
-            display: flex; flex-direction: column; gap: 10px; border: 1px solid #e2e8f0;
+            background: #f1f5f9; padding: 12px; border-radius: 18px;
+            display: flex; flex-direction: column; gap: 8px; border: 1px solid #e2e8f0;
         }
 
-        .control-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; align-items: center; }
-        .control-group { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .control-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .control-group { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
 
         select, button {
-            padding: 8px 12px; border-radius: 10px; border: 1px solid #cbd5e1;
-            background: white; font-family: inherit; font-weight: 600; cursor: pointer;
+            padding: 7px 10px; border-radius: 8px; border: 1px solid #cbd5e1;
+            background: white; font-family: inherit; font-weight: 600; cursor: pointer; font-size: 13px;
         }
 
         button.active { background: var(--primary); color: white; border-color: var(--primary); }
         #minor-btn.minor-mode { background: var(--minor-color); color: white; }
 
-        #staff-container { background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 10px; }
-        #staff-svg { width: 100%; height: auto; max-height: 220px; }
+        #staff-container { background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 10px; margin-top: 5px; }
+        #staff-svg { width: 100%; height: auto; max-height: 200px; }
 
-        #key-display-name { font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-top: 10px; }
+        #key-display-name { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-top: 5px; }
         
-        /* 스크롤 안내 및 핸들 */
-        .scroll-guide {
-            background: #e2e8f0; height: 12px; border-radius: 6px; width: 200px; margin: 10px auto;
-            position: relative; overflow: hidden;
+        /* 인터랙티브 커스텀 스크롤바 */
+        .scroll-container {
+            width: 80%; max-width: 400px; margin: 10px auto; display: flex; flex-direction: column; gap: 5px;
         }
-        .scroll-handle {
-            background: var(--primary); width: 40px; height: 100%; border-radius: 6px;
-            position: absolute; left: 0; transition: transform 0.1s;
+        #scroll-range {
+            width: 100%; cursor: pointer; accent-color: var(--primary); height: 10px;
         }
-        .instruction { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+        .instruction { font-size: 12px; font-weight: 700; color: var(--primary); }
 
-        /* 건반 영역 최적화 */
+        /* 건반 영역 */
         .keyboard-outer {
-            background: #0f172a; padding: 20px 10px 10px 10px; border-radius: 20px; margin-top: auto;
+            background: #0f172a; padding: 25px 10px 10px 10px; border-radius: 20px; margin-top: auto;
         }
         .keyboard-scroll-view {
             width: 100%; overflow-x: auto; overflow-y: hidden;
-            scrollbar-width: thin; scrollbar-color: var(--primary) transparent;
-            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; -ms-overflow-style: none; /* 스크롤바 숨김 */
         }
-        /* 웹킷 스크롤바 시각화 */
-        .keyboard-scroll-view::-webkit-scrollbar { height: 8px; }
-        .keyboard-scroll-view::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .keyboard-scroll-view::-webkit-scrollbar { display: none; }
 
-        .keyboard-track { display: inline-flex; position: relative; height: 280px; padding-bottom: 10px; }
+        .keyboard-track { display: inline-flex; position: relative; height: 260px; padding-bottom: 10px; }
 
         .key {
-            width: 55px; height: 100%; background: var(--key-white);
-            border: 1px solid #e2e8f0; border-radius: 0 0 10px 10px;
+            width: 52px; height: 100%; background: var(--key-white);
+            border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px;
             position: relative; display: flex; flex-direction: column;
             justify-content: flex-end; align-items: center; padding-bottom: 15px;
             flex-shrink: 0; user-select: none; box-shadow: 0 4px 0 #cbd5e1;
         }
 
         .key.black {
-            width: 38px; height: 165px; background: var(--key-black);
-            margin-left: -19px; margin-right: -19px; z-index: 2; border: none; box-shadow: 0 4px 0 #000;
+            width: 36px; height: 155px; background: var(--key-black);
+            margin-left: -18px; margin-right: -18px; z-index: 2; border: none; box-shadow: 0 4px 0 #000;
         }
 
         .key.active { background: #eef2ff; box-shadow: inset 0 -12px 0 var(--primary); }
         .key.black.active { background: #334155; }
 
         .key-label-group { display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; }
-        .solfege-label { font-weight: 900; font-size: 19px; color: var(--accent); margin-bottom: 5px; height: 24px; }
-        .pitch-label { font-size: 11px; font-weight: 700; color: #64748b; }
+        .solfege-label { font-weight: 900; font-size: 18px; color: var(--accent); margin-bottom: 3px; height: 22px; }
+        .pitch-label { font-size: 10px; font-weight: 700; color: #64748b; }
         .key.black .pitch-label { color: #94a3b8; }
-        .kr-label { font-size: 11px; font-weight: 600; color: #cbd5e1; }
-        .key.black .kr-label { color: #475569; }
+        .kr-label { font-size: 10px; font-weight: 600; color: #cbd5e1; }
     </style>
 </head>
 <body>
 <div id="app">
     <div id="controls">
         <div class="control-row">
-            <div class="control-group">🎹 건반 <select id="key-count" onchange="initApp()"><option value="24">24</option><option value="36">36</option><option value="48" selected>48</option></select></div>
+            <div class="control-group">🎹 건반 수 <select id="key-count" onchange="initApp()"><option value="24">24</option><option value="36">36</option><option value="48" selected>48</option></select></div>
             <div class="control-group">✨ 소리 <select id="inst-select"><option value="glockenspiel">글로켄슈필</option><option value="kalimba">칼림바</option></select></div>
         </div>
         <div class="control-row">
-            <select id="clef-select" onchange="drawStaff()"><option value="treble">높은음자리표</option><option value="bass">낮은음자리표</option><option value="alto">가온음자리표</option></select>
+            <select id="clef-select" onchange="drawStaff()"><option value="treble">높은음자리표</option><option value="bass">낮은음자리표</option></select>
             <button id="minor-btn" onclick="toggleMinor()">장조(Major)</button>
             <button id="lock-btn" onclick="toggleLock()">음계 고정: OFF</button>
             <button id="all-show-btn" onclick="toggleAllShow()">전체 표시: OFF</button>
@@ -113,8 +107,11 @@
     <div id="staff-container"><svg id="staff-svg" viewBox="0 0 600 240"></svg></div>
     
     <div id="key-display-name">다장조 (C Major)</div>
-    <div class="instruction">⬅ 좌우로 밀어서 건반을 이동하세요 ➡</div>
-    <div class="scroll-guide"><div class="scroll-handle" id="handle"></div></div>
+    
+    <div class="scroll-container">
+        <div class="instruction">↕ 슬라이더를 밀어 건반을 이동하세요</div>
+        <input type="range" id="scroll-range" min="0" max="100" value="0">
+    </div>
 
     <div class="keyboard-outer">
         <div class="keyboard-scroll-view" id="scroll-view">
@@ -133,12 +130,9 @@
         {n:'Ab',k:'내림 가',b:true,f:207.65},{n:'A',k:'가',b:false,f:220.00},{n:'Bb',k:'내림 나',b:true,f:233.08},{n:'B',k:'나',b:false,f:246.94}
     ];
 
-    // 조표 및 다단조 음계 매핑
     const krKeyNames = {"0M":"다장조","1M":"내림 라장조","2M":"라장조","3M":"내림 마장조","4M":"마장조","5M":"바장조","6M":"올림 바장조","7M":"사장조","8M":"내림 가장조","9M":"가장조","10M":"내림 나장조","11M":"나장조","0m":"가단조","1m":"내림 나단조","2m":"나단조","3m":"다단조","4m":"올림 다단조","5m":"라단조","7m":"마단조","8m":"바단조","9m":"올림 바단조","10m":"사장조"};
-    const signatures = {0:0,1:-5,2:2,3:-3,4:4,5:-1,6:6,7:1,8:-4,9:3,10:-2,11:5}; // 장조 기준 조표
-    const minorSigs = {0:0, 2:2, 3:-3, 5:-1, 7:1, 8:-4, 9:3, 10:-2}; // 단조 대표 조표
-    
-    const sigPos = {treble:{s:[-4,-1,-5,-2,1,-3,0],f:[0,-3,1,-2,-5,-1,-4]},bass:{s:[-2,1,-3,0,3,-1,2],f:[2,-1,3,0,-3,1,-2]},alto:{s:[-3,0,-4,-1,2,-2,1],f:[1,-2,2,-1,-4,0,-3]}};
+    const signatures = {0:0,1:-5,2:2,3:-3,4:4,5:-1,6:6,7:1,8:-4,9:3,10:-2,11:5};
+    const sigPos = {treble:{s:[-4,-1,-5,-2,1,-3,0],f:[0,-3,1,-2,-5,-1,-4]},bass:{s:[-2,1,-3,0,3,-1,2],f:[2,-1,3,0,-3,1,-2]}};
     const stepMap = {0:0, 1:0, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:5, 9:5, 10:6, 11:6};
 
     function getAudioCtx() {
@@ -171,16 +165,18 @@
         const svg = document.getElementById('staff-svg');
         const clef = document.getElementById('clef-select').value;
         const rootIdx = currentRoot % 12;
-        
-        // 단조인 경우 나란한 조의 조표를 가져오거나 매핑
         let sigVal = isMinor ? (signatures[(rootIdx + 3) % 12]) : signatures[rootIdx];
-        
         const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];
         const solNames = ['도','레','미','파','솔','라','시'];
         
         let html = '';
         for(let i=0; i<5; i++) html += `<line x1="20" y1="${80+i*10}" x2="580" y2="${80+i*10}" stroke="#e2e8f0" stroke-width="1.5"/>`;
-        const cD = {treble:{t:'𝄞',y:125,s:70, basePos:130},bass:{t:'𝄢',y:110,s:60, basePos:110},alto:{t:'𝄡',y:120,s:65, basePos:120}}[clef];
+        
+        // 낮은음자리표(Bass Clef) 위치 완전 교정: C3(두번째 칸)을 기준으로 설정
+        const cD = clef === 'treble' 
+            ? {t:'𝄞',y:125,s:70, basePos:130} // 높은음자리표: C4(덧줄 하단)
+            : {t:'𝄢',y:112,s:62, basePos:115}; // 낮은음자리표: C3(두번째 칸)
+        
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
         const p = sigPos[clef];
         if(sigVal>0) for(let i=0; i<sigVal; i++) html += `<text x="${95+i*14}" y="${105+p.s[i]*5}" font-size="24">♯</text>`;
@@ -189,28 +185,26 @@
         const rootOffset = stepMap[rootIdx]; 
         steps.forEach((step, i) => {
             const x = 240 + i*45;
-            // 다이어토닉 음계이므로 장/단조 상관없이 오선 위에서는 한 칸씩 올라감
             const y = cD.basePos - (rootOffset * 5) - (i * 5);
             html += `<circle cx="${x}" cy="${y}" r="5.5" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}" />`;
-            if(y >= 130) {
+            
+            // 덧줄 계산 로직 (유동적)
+            if(y >= 135) {
                 for(let lineY = 130; lineY <= y; lineY += 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
-            } else if(y <= 70) {
-                for(let lineY = 70; lineY >= y; lineY -= 10)
+            } else if(y <= 75) {
+                for(let lineY = 80; lineY >= y; lineY -= 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
             }
             html += `<text x="${x}" y="175" text-anchor="middle" font-size="14" font-weight="900" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}">${solNames[i]}</text>`;
             html += `<text x="${x}" y="195" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text-sub)">${baseNotes[(rootIdx+step)%12].n}</text>`;
-            html += `<text x="${x}" y="210" text-anchor="middle" font-size="11" fill="#94a3b8">${baseNotes[(rootIdx+step)%12].k}</text>`;
         });
         svg.innerHTML = html;
     }
 
     function updateUI(root) {
         if(!isLocked) currentRoot = root;
-        const numKeys = parseInt(document.getElementById('key-count').value);
         const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];
-        
         document.querySelectorAll('.key').forEach((keyEl, i) => {
             const diff = ((i-currentRoot)%12+12)%12;
             const sIdx = steps.indexOf(diff);
@@ -220,13 +214,24 @@
                 keyEl.classList.add('active');
             } else { solLabel.innerText = ''; keyEl.classList.remove('active'); }
         });
-        
         const keyKey = (currentRoot%12)+(isMinor?'m':'M');
-        const engName = baseNotes[currentRoot%12].n + (isMinor?' Minor':' Major');
-        const korName = (krKeyNames[keyKey] || baseNotes[currentRoot%12].k + (isMinor?'단조':'장조'));
-        document.getElementById('key-display-name').innerText = `${korName} (${engName})`;
+        document.getElementById('key-display-name').innerText = `${krKeyNames[keyKey] || baseNotes[currentRoot%12].k + (isMinor?'단조':'장조')} (${baseNotes[currentRoot%12].n} ${isMinor?'Minor':'Major'})`;
         drawStaff();
     }
+
+    const scrollView = document.getElementById('scroll-view');
+    const scrollRange = document.getElementById('scroll-range');
+
+    // 양방향 스크롤 동기화
+    scrollRange.oninput = () => {
+        const maxScroll = scrollView.scrollWidth - scrollView.clientWidth;
+        scrollView.scrollLeft = (scrollRange.value / 100) * maxScroll;
+    };
+
+    scrollView.onscroll = () => {
+        const maxScroll = scrollView.scrollWidth - scrollView.clientWidth;
+        scrollRange.value = (scrollView.scrollLeft / maxScroll) * 100;
+    };
 
     function initApp() {
         const numKeys = parseInt(document.getElementById('key-count').value);
@@ -247,14 +252,6 @@
         }
         updateUI(currentRoot);
     }
-
-    // 스크롤 동기화 로직
-    const scrollView = document.getElementById('scroll-view');
-    const handle = document.getElementById('handle');
-    scrollView.onscroll = () => {
-        const scrollRatio = scrollView.scrollLeft / (scrollView.scrollWidth - scrollView.clientWidth);
-        handle.style.transform = `translateX(${scrollRatio * 160}px)`;
-    };
 
     function toggleMinor() { isMinor = !isMinor; document.getElementById('minor-btn').innerText = isMinor?"단조(Minor)":"장조(Major)"; document.getElementById('minor-btn').classList.toggle('minor-mode'); updateUI(currentRoot); }
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').classList.toggle('active'); document.getElementById('lock-btn').innerText = isLocked?"음계 고정: ON":"음계 고정: OFF"; }
