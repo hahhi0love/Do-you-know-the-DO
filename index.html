@@ -198,7 +198,7 @@
         // 3단계. 낮은음자리표 '도'(C3) 위치 완전 교정! (픽셀 단위 재설정)
         const cD = clef === 'treble' 
             ? {t:'𝄞',y:125,s:70, basePos:130} // 높은음자리표: C4(덧줄)
-            : {t:'𝄢',y:122,s:62, basePos:115}; // 낮은음자리표: basePos 115 -> C3(밑에서 두번째 칸)
+            : {t:'𝄢',y:117,s:62, basePos:115}; // 낮은음자리표: basePos 115 -> C3(밑에서 두번째 칸)
         
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
         const p = sigPos[clef];
