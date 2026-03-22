@@ -24,6 +24,7 @@
             padding: 10px;
             display: flex;
             justify-content: center;
+            touch-action: manipulation; /* 지연 방지 */
         }
 
         #app {
@@ -50,14 +51,7 @@
             border: 1px solid #e2e8f0;
         }
 
-        .control-row {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
+        .control-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; align-items: center; }
         .control-group { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
 
         select, button {
@@ -81,21 +75,9 @@
         }
         #staff-svg { width: 100%; height: auto; max-height: 220px; }
 
-        /* 음계 및 안내 문구 스타일 */
-        #key-display-name {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--text-main);
-            margin-top: 10px;
-        }
-        .instruction {
-            font-size: 13px;
-            font-weight: 600;
-            color: #94a3b8;
-            margin-bottom: 5px;
-        }
+        #key-display-name { font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-top: 10px; }
+        .instruction { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 5px; }
 
-        /* 건반 영역 */
         .keyboard-container {
             background: #0f172a;
             padding: 30px 10px 15px 10px;
@@ -103,59 +85,26 @@
             margin-top: auto;
         }
 
-        .keyboard-scroll-view {
-            width: 100%;
-            overflow-x: auto;
-            cursor: grab;
-            border-radius: 10px;
-        }
-
-        .keyboard-track {
-            display: inline-flex;
-            position: relative;
-            height: 280px;
-            padding-bottom: 10px;
-        }
+        .keyboard-scroll-view { width: 100%; overflow-x: auto; border-radius: 10px; }
+        .keyboard-track { display: inline-flex; position: relative; height: 280px; padding-bottom: 10px; }
 
         .key {
-            width: 55px;
-            height: 100%;
-            background: var(--key-white);
-            border: 1px solid #e2e8f0;
-            border-radius: 0 0 10px 10px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            padding-bottom: 15px;
-            flex-shrink: 0;
-            user-select: none;
-            box-shadow: 0 4px 0 #cbd5e1;
+            width: 55px; height: 100%; background: var(--key-white);
+            border: 1px solid #e2e8f0; border-radius: 0 0 10px 10px;
+            position: relative; display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: center; padding-bottom: 15px;
+            flex-shrink: 0; user-select: none; box-shadow: 0 4px 0 #cbd5e1;
         }
 
         .key.black {
-            width: 38px;
-            height: 165px;
-            background: var(--key-black);
-            margin-left: -19px;
-            margin-right: -19px;
-            z-index: 2;
-            border: none;
-            box-shadow: 0 4px 0 #000;
+            width: 38px; height: 165px; background: var(--key-black);
+            margin-left: -19px; margin-right: -19px; z-index: 2; border: none; box-shadow: 0 4px 0 #000;
         }
 
         .key.active { background: #eef2ff; box-shadow: inset 0 -12px 0 var(--primary); }
         .key.black.active { background: #334155; }
 
-        /* 건반 위 글자들 */
-        .key-label-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            pointer-events: none;
-        }
+        .key-label-group { display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; }
         .solfege-label { font-weight: 900; font-size: 19px; color: var(--accent); margin-bottom: 5px; height: 24px; }
         .pitch-label { font-size: 11px; font-weight: 700; color: #64748b; }
         .key.black .pitch-label { color: #94a3b8; }
@@ -179,7 +128,6 @@
     </div>
 
     <div id="staff-container"><svg id="staff-svg" viewBox="0 0 600 240"></svg></div>
-    
     <div id="key-display-name">다장조 (C Major)</div>
     <div class="instruction">↕ 건반 윗부분(검은색 바)을 잡고 좌우로 미세요</div>
 
@@ -191,7 +139,7 @@
 </div>
 
 <script>
-    let audioCtx;
+    let audioCtx = null;
     let isLocked = false, isAllShow = false, isMinor = false, currentRoot = 0;
 
     const baseNotes = [
@@ -204,27 +152,40 @@
     const sigPos = {treble:{s:[-4,-1,-5,-2,1,-3,0],f:[0,-3,1,-2,-5,-1,-4]},bass:{s:[-2,1,-3,0,3,-1,2],f:[2,-1,3,0,-3,1,-2]},alto:{s:[-3,0,-4,-1,2,-2,1],f:[1,-2,2,-1,-4,0,-3]}};
     const stepMap = {0:0, 1:0, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:5, 9:5, 10:6, 11:6};
 
-    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }
+    // [핵심] 오디오 컨텍스트 싱글톤 관리 및 즉시 실행
+    function getAudioCtx() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+    }
 
     function playSound(freq) {
-        initAudio();
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
         const type = document.getElementById('inst-select').value;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.frequency.value = freq;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.frequency.setValueAtTime(freq, now);
+        
         if(type === 'glockenspiel') {
             osc.type = 'triangle';
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.01);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.7, now + 0.005);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
         } else { 
             osc.type = 'sine';
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.6, now + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
         }
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 1.5);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.2);
     }
 
     function drawStaff() {
@@ -237,10 +198,8 @@
         
         let html = '';
         for(let i=0; i<5; i++) html += `<line x1="20" y1="${80+i*10}" x2="580" y2="${80+i*10}" stroke="#e2e8f0" stroke-width="1.5"/>`;
-        
         const cD = {treble:{t:'𝄞',y:125,s:70, basePos:130},bass:{t:'𝄢',y:110,s:60, basePos:110},alto:{t:'𝄡',y:120,s:65, basePos:120}}[clef];
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
-        
         const p = sigPos[clef];
         if(sigVal>0) for(let i=0; i<sigVal; i++) html += `<text x="${95+i*14}" y="${105+p.s[i]*5}" font-size="24">♯</text>`;
         else if(sigVal<0) for(let i=0; i<Math.abs(sigVal); i++) html += `<text x="${95+i*14}" y="${105+p.f[i]*5}" font-size="24">♭</text>`;
@@ -269,7 +228,8 @@
         const numKeys = parseInt(document.getElementById('key-count').value);
         const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];
         
-        document.querySelectorAll('.key').forEach((keyEl, i) => {
+        const keys = document.querySelectorAll('.key');
+        keys.forEach((keyEl, i) => {
             const diff = ((i-currentRoot)%12+12)%12;
             const sIdx = steps.indexOf(diff);
             const solLabel = keyEl.querySelector('.solfege-label');
@@ -300,21 +260,13 @@
             const key = document.createElement('div');
             key.className = `key ${note.b?'black':''}`;
             key.dataset.index = i;
+            key.innerHTML = `<div class="key-label-group"><span class="solfege-label"></span><span class="pitch-label">${note.n}${octave}</span><span class="kr-label">${note.k}</span></div>`;
             
-            // 모든 건반에 음명(C4, C#4 등)과 우리말(다, 올림 다) 표기 복원
-            key.innerHTML = `
-                <div class="key-label-group">
-                    <span class="solfege-label"></span>
-                    <span class="pitch-label">${note.n}${octave}</span>
-                    <span class="kr-label">${note.k}</span>
-                </div>
-            `;
-            
+            // [핵심] 소리 재생을 이벤트의 최상단에 배치
             const handlePress = (e) => {
                 e.preventDefault();
-                initAudio();
-                playSound(note.f * Math.pow(2, Math.floor(i/12)));
-                if(!isLocked) updateUI(i);
+                playSound(note.f * Math.pow(2, Math.floor(i/12))); // 1순위: 소리
+                requestAnimationFrame(() => { if(!isLocked) updateUI(i); }); // 2순위: 화면 업데이트
             };
             
             key.onmousedown = handlePress;
