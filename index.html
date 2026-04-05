@@ -10,7 +10,7 @@
         :root {
             --primary: #4f46e5; --accent: #ef4444; --minor-color: #10b981;
             --bg: #f8fafc; --key-white: #ffffff; --key-black: #1e293b;
-            --text-main: #111827; --text-sub: #6b7280; /* 더 자연스러운 블랙 톤 */
+            --text-main: #111827; --text-sub: #6b7280;
         }
 
         body {
@@ -26,10 +26,9 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px;
         }
 
-        /* 1. 로고 색상(블랙) 및 폰트 고도화 */
         #main-title {
-            font-size: 1.8rem; font-weight: 800; color: var(--text-main); /* 자연스러운 블랙 */
-            margin: 5px 0 10px 0; letter-spacing: -0.8px; font-family: inherit; /* 시스템 폰트 상속 */
+            font-size: 1.8rem; font-weight: 800; color: var(--text-main);
+            margin: 5px 0 10px 0; letter-spacing: -0.8px; font-family: inherit;
         }
 
         #controls {
@@ -52,9 +51,8 @@
 
         #key-display-name { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-top: 5px; }
         
-        /* 2. 대폭 확장되고 세련된 스크롤바 디자인 슬라이더 */
         .scroll-container {
-            width: 95%; /* 가로 크기 확장 */
+            width: 95%;
             margin: 15px auto; display: flex; flex-direction: column; gap: 8px;
         }
         #scroll-range {
@@ -63,23 +61,22 @@
         }
         #scroll-range::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none;
-            width: 60px; height: 12px; background: #94a3b8; /* 심플한 그레이 핸들 */
+            width: 60px; height: 12px; background: #94a3b8;
             border-radius: 10px; cursor: pointer; transition: background 0.2s;
         }
-        #scroll-range::-webkit-slider-thumb:hover { background: var(--primary); /* 호버 시에만 포인트 컬러 */ }
+        #scroll-range::-webkit-slider-thumb:hover { background: var(--primary); }
         #scroll-range::-moz-range-thumb {
             width: 60px; height: 12px; background: #94a3b8; border: none; border-radius: 10px; cursor: pointer;
         }
 
         .instruction { font-size: 12px; font-weight: 700; color: #94a3b8; }
 
-        /* 건반 영역 최적화 (촌스럽지 않은 그림자) */
         .keyboard-outer {
             background: #0f172a; padding: 25px 10px 10px 10px; border-radius: 20px; margin-top: auto;
         }
         .keyboard-scroll-view {
             width: 100%; overflow-x: auto; overflow-y: hidden;
-            scrollbar-width: none; -ms-overflow-style: none; /* 스크롤바 숨김 */
+            scrollbar-width: none; -ms-overflow-style: none;
         }
         .keyboard-scroll-view::-webkit-scrollbar { display: none; }
 
@@ -151,7 +148,7 @@
 <script>
     let audioCtx = null;
     let isLocked = false, isAllShow = false, currentRoot = 0;
-    let scaleMode = 'major'; // 'major', 'minor', 'pentatonic'
+    let scaleMode = 'major';
 
     const baseNotes = [
         {n:'C',k:'다',b:false,f:130.81},{n:'C#',k:'올림 다',b:true,f:138.59},{n:'D',k:'라',b:false,f:146.83},{n:'Eb',k:'내림 마',b:true,f:155.56},
@@ -200,12 +197,12 @@
         let steps, solNames, diatonicOffsets;
         if (scaleMode === 'minor') {
             steps = [0,2,3,5,7,8,10];
-            solNames = ['라','시','도','레','미','파','솔']; // 단조 계이름 변경
-            diatonicOffsets = [0,1,2,3,4,5,6]; // 오선지 위치 오프셋
+            solNames = ['라','시','도','레','미','파','솔'];
+            diatonicOffsets = [0,1,2,3,4,5,6]; 
         } else if (scaleMode === 'pentatonic') {
             steps = [0,2,4,7,9];
-            solNames = ['도','레','미','솔','라']; // 펜타토닉 음계 적용
-            diatonicOffsets = [0,1,2,4,5]; // 파(3), 시(6) 생략을 위한 위치 조정
+            solNames = ['도','레','미','솔','라']; 
+            diatonicOffsets = [0,1,2,4,5]; 
         } else {
             steps = [0,2,4,5,7,9,11];
             solNames = ['도','레','미','파','솔','라','시'];
@@ -213,12 +210,15 @@
         }
         
         let html = '';
-        // 오선지 줄 그리기 (80~120)
         for(let i=0; i<5; i++) html += `<line x1="20" y1="${80+i*10}" x2="580" y2="${80+i*10}" stroke="#e2e8f0" stroke-width="1.5"/>`;
         
+        // 🚨 핵심 수정 부분: Minor일 경우 '라' 위치부터 시작하도록 basePos를 2칸 아래(+10)로 강제 지정
+        let basePosTreble = scaleMode === 'minor' ? 140 : 130;
+        let basePosBass = scaleMode === 'minor' ? 115 : 105;
+
         const cD = clef === 'treble' 
-            ? {t:'𝄞',y:125,s:70, basePos:130} 
-            : {t:'𝄢',y:117,s:62, basePos:115}; 
+            ? {t:'𝄞',y:125,s:70, basePos: basePosTreble} 
+            : {t:'𝄢',y:117,s:62, basePos: basePosBass}; 
         
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
         const p = sigPos[clef];
@@ -232,7 +232,7 @@
             const y = cD.basePos - (rootOffset * 5) - (staffOffset * 5);
             html += `<circle cx="${x}" cy="${y}" r="5.5" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}" />`;
             
-            // Ledger 라인
+            // 덧줄(Ledger 라인) 로직
             if(y >= 130) {
                 for(let lineY = 130; lineY <= y; lineY += 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
@@ -283,7 +283,6 @@
     const scrollView = document.getElementById('scroll-view');
     const scrollRange = document.getElementById('scroll-range');
 
-    // 슬라이더 <-> 건반 스크롤 양방향 동기화
     scrollRange.oninput = () => {
         const maxScroll = scrollView.scrollWidth - scrollView.clientWidth;
         scrollView.scrollLeft = (scrollRange.value / 100) * maxScroll;
