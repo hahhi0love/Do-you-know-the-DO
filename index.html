@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>도를 아십니까? Pro 🎹</title>
     <style>
-        /* Pretendard 폰트pairing 고도화 (촌스럽지 않게) */
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root {
             --primary: #4f46e5; --accent: #ef4444; --minor-color: #10b981;
@@ -64,7 +63,6 @@
             width: 60px; height: 12px; background: #94a3b8;
             border-radius: 10px; cursor: pointer; transition: background 0.2s;
         }
-        #scroll-range::-webkit-slider-thumb:hover { background: var(--primary); }
         #scroll-range::-moz-range-thumb {
             width: 60px; height: 12px; background: #94a3b8; border: none; border-radius: 10px; cursor: pointer;
         }
@@ -147,7 +145,7 @@
 
 <script>
     let audioCtx = null;
-    let isLocked = false, isAllShow = false, currentRoot = 0;
+    let isLocked = false, isAllShow = false, currentRoot = 24; // 시작점을 중간(C4)으로
     let scaleMode = 'major';
 
     const baseNotes = [
@@ -156,7 +154,16 @@
         {n:'Ab',k:'내림 가',b:true,f:207.65},{n:'A',k:'가',b:false,f:220.00},{n:'Bb',k:'내림 나',b:true,f:233.08},{n:'B',k:'나',b:false,f:246.94}
     ];
 
-    const krKeyNames = {"0M":"다장조","1M":"내림 라장조","2M":"라장조","3M":"내림 마장조","4M":"마장조","5M":"바장조","6M":"올림 바장조","7M":"사장조","8M":"내림 가장조","9M":"가장조","10M":"내림 나장조","11M":"나장조","0m":"가단조","1m":"내림 나단조","2m":"나단조","3m":"다단조","4m":"올림 다단조","5m":"라단조","7m":"마단조","8m":"바단조","9m":"올림 바단조","10m":"사장조"};
+    const krKeyNames = {
+        "0M":"다장조","1M":"내림 라장조","2M":"라장조","3M":"내림 마장조","4M":"마장조","5M":"바장조","6M":"올림 바장조","7M":"사장조","8M":"내림 가장조","9M":"가장조","10M":"내림 나장조","11M":"나장조",
+        "0m":"가단조","1m":"내림 나단조","2m":"나단조","3m":"다단조","4m":"올림 다단조","5m":"라단조","6m":"올림 라단조","7m":"마단조","8m":"바단조","9m":"올림 바단조","10m":"사단조","11m":"올림 사단조"
+    };
+    
+    const enNames = {
+        M: ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"],
+        m: ["A", "Bb", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
+    };
+
     const signatures = {0:0,1:-5,2:2,3:-3,4:4,5:-1,6:6,7:1,8:-4,9:3,10:-2,11:5};
     const sigPos = {treble:{s:[-4,-1,-5,-2,1,-3,0],f:[0,-3,1,-2,-5,-1,-4]},bass:{s:[-2,1,-3,0,3,-1,2],f:[2,-1,3,0,-3,1,-2]}};
     const stepMap = {0:0, 1:0, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:5, 9:5, 10:6, 11:6};
@@ -192,33 +199,31 @@
         const clef = document.getElementById('clef-select').value;
         const rootIdx = currentRoot % 12;
         
-        let sigVal = scaleMode === 'minor' ? (signatures[(rootIdx + 3) % 12]) : signatures[rootIdx];
+        let sigVal = signatures[rootIdx]; // 조표는 무조건 '도' 기준
         
         let steps, solNames, diatonicOffsets;
         if (scaleMode === 'minor') {
-            steps = [0,2,3,5,7,8,10];
+            // 도(0) 기준으로 라(-3칸), 시(-1칸), 도(0칸) ... 형태로 상대적 위치 계산
+            steps = [-3, -1, 0, 2, 4, 5, 7];
             solNames = ['라','시','도','레','미','파','솔'];
-            diatonicOffsets = [0,1,2,3,4,5,6]; 
+            diatonicOffsets = [-2, -1, 0, 1, 2, 3, 4]; 
         } else if (scaleMode === 'pentatonic') {
-            steps = [0,2,4,7,9];
+            steps = [0, 2, 4, 7, 9];
             solNames = ['도','레','미','솔','라']; 
-            diatonicOffsets = [0,1,2,4,5]; 
+            diatonicOffsets = [0, 1, 2, 4, 5]; 
         } else {
-            steps = [0,2,4,5,7,9,11];
+            steps = [0, 2, 4, 5, 7, 9, 11];
             solNames = ['도','레','미','파','솔','라','시'];
-            diatonicOffsets = [0,1,2,3,4,5,6];
+            diatonicOffsets = [0, 1, 2, 3, 4, 5, 6];
         }
         
         let html = '';
         for(let i=0; i<5; i++) html += `<line x1="20" y1="${80+i*10}" x2="580" y2="${80+i*10}" stroke="#e2e8f0" stroke-width="1.5"/>`;
         
-        // 🚨 핵심 수정 부분: Minor일 경우 '라' 위치부터 시작하도록 basePos를 2칸 아래(+10)로 강제 지정
-        let basePosTreble = scaleMode === 'minor' ? 140 : 130;
-        let basePosBass = scaleMode === 'minor' ? 115 : 105;
-
+        // basePos 해킹 없이 원래의 절대 좌표값으로 복구
         const cD = clef === 'treble' 
-            ? {t:'𝄞',y:125,s:70, basePos: basePosTreble} 
-            : {t:'𝄢',y:117,s:62, basePos: basePosBass}; 
+            ? {t:'𝄞',y:125,s:70, basePos: 130} 
+            : {t:'𝄢',y:117,s:62, basePos: 105}; 
         
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
         const p = sigPos[clef];
@@ -229,10 +234,12 @@
         steps.forEach((step, i) => {
             const x = 240 + i*45;
             const staffOffset = diatonicOffsets[i];
+            
+            // '도'의 높이에서 상대적인 칸(staffOffset)만큼만 더해주면 단조/장조 모두 자동 해결
             const y = cD.basePos - (rootOffset * 5) - (staffOffset * 5);
+            
             html += `<circle cx="${x}" cy="${y}" r="5.5" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}" />`;
             
-            // 덧줄(Ledger 라인) 로직
             if(y >= 130) {
                 for(let lineY = 130; lineY <= y; lineY += 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
@@ -241,7 +248,10 @@
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
             }
             html += `<text x="${x}" y="175" text-anchor="middle" font-size="14" font-weight="900" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}">${solNames[i]}</text>`;
-            html += `<text x="${x}" y="195" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text-sub)">${baseNotes[(rootIdx+step)%12].n}</text>`;
+            
+            // 절대 음이름 텍스트
+            const noteIndex = (rootIdx + step + 12) % 12;
+            html += `<text x="${x}" y="195" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text-sub)">${baseNotes[noteIndex].n}</text>`;
         });
         svg.innerHTML = html;
     }
@@ -249,34 +259,53 @@
     function updateUI(root) {
         if(!isLocked) currentRoot = root;
         
-        let steps, solNames;
+        // 건반에 붙는 계이름 텍스트는 모드에 상관없이 항상 이동도법 '도' 기준의 간격을 유지
+        const keySteps = [0,2,4,5,7,9,11];
+        const keySolNames = ['도','레','미','파','솔','라','시'];
+        
+        let startOffset = 0;
         if (scaleMode === 'minor') {
-            steps = [0,2,3,5,7,8,10];
-            solNames = ['라','시','도','레','미','파','솔'];
-        } else if (scaleMode === 'pentatonic') {
-            steps = [0,2,4,7,9];
-            solNames = ['도','레','미','솔','라'];
-        } else {
-            steps = [0,2,4,5,7,9,11];
-            solNames = ['도','레','미','파','솔','라','시'];
+            startOffset = -3; // 단조일 땐 하이라이트 영역이 왼쪽 '라'부터 시작되도록
         }
 
+        const highlightStart = currentRoot + startOffset;
+        const highlightEnd = highlightStart + 12;
+
         document.querySelectorAll('.key').forEach((keyEl, i) => {
-            const diff = ((i-currentRoot)%12+12)%12;
-            const sIdx = steps.indexOf(diff);
+            const diff = ((i - currentRoot) % 12 + 12) % 12;
+            const sIdx = keySteps.indexOf(diff);
             const solLabel = keyEl.querySelector('.solfege-label');
-            if(sIdx !== -1 && (isAllShow || (i>=currentRoot && i<currentRoot+12))) {
-                solLabel.innerText = solNames[sIdx];
+            
+            let isValid = sIdx !== -1;
+            if (scaleMode === 'pentatonic' && isValid) {
+                const pentaIdx = [0, 2, 4, 7, 9].indexOf(diff);
+                if (pentaIdx === -1) isValid = false;
+            }
+
+            if (isValid && (isAllShow || (i >= highlightStart && i < highlightEnd))) {
+                solLabel.innerText = keySolNames[sIdx];
                 keyEl.classList.add('active');
-            } else { solLabel.innerText = ''; keyEl.classList.remove('active'); }
+            } else { 
+                solLabel.innerText = ''; 
+                keyEl.classList.remove('active'); 
+            }
         });
         
-        const keyKey = (currentRoot%12)+(scaleMode === 'minor' ? 'm' : 'M');
-        let titleKR = krKeyNames[keyKey] || baseNotes[currentRoot%12].k + (scaleMode === 'minor' ? '단조' : '장조');
-        if (scaleMode === 'pentatonic') titleKR = baseNotes[currentRoot%12].k + ' 펜타토닉';
-        const titleEN = scaleMode === 'minor' ? 'Minor' : scaleMode === 'pentatonic' ? 'Pentatonic' : 'Major';
+        const rootIdx = currentRoot % 12;
+        let titleKR, titleEN;
         
-        document.getElementById('key-display-name').innerText = `${titleKR} (${baseNotes[currentRoot%12].n} ${titleEN})`;
+        if (scaleMode === 'minor') {
+            titleKR = krKeyNames[rootIdx + 'm'];
+            titleEN = enNames.m[rootIdx] + ' Minor';
+        } else if (scaleMode === 'pentatonic') {
+            titleKR = krKeyNames[rootIdx + 'M'].replace('장조', ' 펜타토닉');
+            titleEN = enNames.M[rootIdx] + ' Pentatonic';
+        } else {
+            titleKR = krKeyNames[rootIdx + 'M'];
+            titleEN = enNames.M[rootIdx] + ' Major';
+        }
+        
+        document.getElementById('key-display-name').innerText = `${titleKR} (${titleEN})`;
         drawStaff();
     }
 
@@ -312,6 +341,14 @@
             key.onmousedown = handlePress; key.ontouchstart = handlePress;
             kb.appendChild(key);
         }
+        // 초기 렌더링 시 스크롤을 중앙으로 맞춰줍니다
+        setTimeout(() => {
+            const maxScroll = scrollView.scrollWidth - scrollView.clientWidth;
+            if(maxScroll > 0) {
+                scrollView.scrollLeft = maxScroll / 2;
+                scrollRange.value = 50;
+            }
+        }, 50);
         updateUI(currentRoot);
     }
 
