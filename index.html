@@ -46,7 +46,6 @@
         }
 
         button.active { background: var(--primary); color: white; border-color: var(--primary); }
-        #minor-btn.minor-mode { background: var(--minor-color); color: white; }
 
         #staff-container { background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 10px; margin-top: 5px; }
         #staff-svg { width: 100%; height: auto; max-height: 200px; }
@@ -119,8 +118,15 @@
             <div class="control-group">✨ 소리 <select id="inst-select"><option value="glockenspiel">피아노</option><option value="kalimba">칼림바</option></select></div>
         </div>
         <div class="control-row">
-            <select id="clef-select" onchange="drawStaff()"><option value="treble">높은음자리표</option><option value="bass">낮은음자리표</option></select>
-            <button id="minor-btn" onclick="toggleMinor()">장조(Major)</button>
+            <select id="clef-select" onchange="drawStaff()">
+                <option value="treble">높은음자리표</option>
+                <option value="bass">낮은음자리표</option>
+            </select>
+            <select id="scale-mode" onchange="changeScaleMode()">
+                <option value="major">장조 (Major)</option>
+                <option value="minor">단조 (Minor)</option>
+                <option value="pentatonic">펜타토닉 (Penta)</option>
+            </select>
             <button id="lock-btn" onclick="toggleLock()">음계 고정: OFF</button>
             <button id="all-show-btn" onclick="toggleAllShow()">전체 표시: OFF</button>
         </div>
@@ -144,7 +150,8 @@
 
 <script>
     let audioCtx = null;
-    let isLocked = false, isAllShow = false, isMinor = false, currentRoot = 0;
+    let isLocked = false, isAllShow = false, currentRoot = 0;
+    let scaleMode = 'major'; // 'major', 'minor', 'pentatonic'
 
     const baseNotes = [
         {n:'C',k:'다',b:false,f:130.81},{n:'C#',k:'올림 다',b:true,f:138.59},{n:'D',k:'라',b:false,f:146.83},{n:'Eb',k:'내림 마',b:true,f:155.56},
@@ -187,18 +194,31 @@
         const svg = document.getElementById('staff-svg');
         const clef = document.getElementById('clef-select').value;
         const rootIdx = currentRoot % 12;
-        let sigVal = isMinor ? (signatures[(rootIdx + 3) % 12]) : signatures[rootIdx];
-        const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];
-        const solNames = ['도','레','미','파','솔','라','시'];
+        
+        let sigVal = scaleMode === 'minor' ? (signatures[(rootIdx + 3) % 12]) : signatures[rootIdx];
+        
+        let steps, solNames, diatonicOffsets;
+        if (scaleMode === 'minor') {
+            steps = [0,2,3,5,7,8,10];
+            solNames = ['라','시','도','레','미','파','솔']; // 단조 계이름 변경
+            diatonicOffsets = [0,1,2,3,4,5,6]; // 오선지 위치 오프셋
+        } else if (scaleMode === 'pentatonic') {
+            steps = [0,2,4,7,9];
+            solNames = ['도','레','미','솔','라']; // 펜타토닉 음계 적용
+            diatonicOffsets = [0,1,2,4,5]; // 파(3), 시(6) 생략을 위한 위치 조정
+        } else {
+            steps = [0,2,4,5,7,9,11];
+            solNames = ['도','레','미','파','솔','라','시'];
+            diatonicOffsets = [0,1,2,3,4,5,6];
+        }
         
         let html = '';
         // 오선지 줄 그리기 (80~120)
         for(let i=0; i<5; i++) html += `<line x1="20" y1="${80+i*10}" x2="580" y2="${80+i*10}" stroke="#e2e8f0" stroke-width="1.5"/>`;
         
-        // 3단계. 낮은음자리표 '도'(C3) 위치 완전 교정! (픽셀 단위 재설정)
         const cD = clef === 'treble' 
-            ? {t:'𝄞',y:125,s:70, basePos:130} // 높은음자리표: C4(덧줄)
-            : {t:'𝄢',y:117,s:62, basePos:115}; // 낮은음자리표: basePos 115 -> C3(밑에서 두번째 칸)
+            ? {t:'𝄞',y:125,s:70, basePos:130} 
+            : {t:'𝄢',y:117,s:62, basePos:115}; 
         
         html += `<text x="30" y="${cD.y}" font-size="${cD.s}" font-family="serif">${cD.t}</text>`;
         const p = sigPos[clef];
@@ -208,10 +228,11 @@
         const rootOffset = stepMap[rootIdx]; 
         steps.forEach((step, i) => {
             const x = 240 + i*45;
-            const y = cD.basePos - (rootOffset * 5) - (i * 5);
+            const staffOffset = diatonicOffsets[i];
+            const y = cD.basePos - (rootOffset * 5) - (staffOffset * 5);
             html += `<circle cx="${x}" cy="${y}" r="5.5" fill="${i===0? 'var(--accent)' : 'var(--text-main)'}" />`;
             
-            // Ledger 라인 재조정 (낮은 도 위치 변경에 따른 임계값 수정)
+            // Ledger 라인
             if(y >= 130) {
                 for(let lineY = 130; lineY <= y; lineY += 10)
                     html += `<line x1="${x-10}" y1="${lineY}" x2="${x+10}" y2="${lineY}" stroke="#000" stroke-width="1.5"/>`;
@@ -227,18 +248,35 @@
 
     function updateUI(root) {
         if(!isLocked) currentRoot = root;
-        const steps = isMinor ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];
+        
+        let steps, solNames;
+        if (scaleMode === 'minor') {
+            steps = [0,2,3,5,7,8,10];
+            solNames = ['라','시','도','레','미','파','솔'];
+        } else if (scaleMode === 'pentatonic') {
+            steps = [0,2,4,7,9];
+            solNames = ['도','레','미','솔','라'];
+        } else {
+            steps = [0,2,4,5,7,9,11];
+            solNames = ['도','레','미','파','솔','라','시'];
+        }
+
         document.querySelectorAll('.key').forEach((keyEl, i) => {
             const diff = ((i-currentRoot)%12+12)%12;
             const sIdx = steps.indexOf(diff);
             const solLabel = keyEl.querySelector('.solfege-label');
             if(sIdx !== -1 && (isAllShow || (i>=currentRoot && i<currentRoot+12))) {
-                solLabel.innerText = ['도','레','미','파','솔','라','시'][sIdx];
+                solLabel.innerText = solNames[sIdx];
                 keyEl.classList.add('active');
             } else { solLabel.innerText = ''; keyEl.classList.remove('active'); }
         });
-        const keyKey = (currentRoot%12)+(isMinor?'m':'M');
-        document.getElementById('key-display-name').innerText = `${krKeyNames[keyKey] || baseNotes[currentRoot%12].k + (isMinor?'단조':'장조')} (${baseNotes[currentRoot%12].n} ${isMinor?'Minor':'Major'})`;
+        
+        const keyKey = (currentRoot%12)+(scaleMode === 'minor' ? 'm' : 'M');
+        let titleKR = krKeyNames[keyKey] || baseNotes[currentRoot%12].k + (scaleMode === 'minor' ? '단조' : '장조');
+        if (scaleMode === 'pentatonic') titleKR = baseNotes[currentRoot%12].k + ' 펜타토닉';
+        const titleEN = scaleMode === 'minor' ? 'Minor' : scaleMode === 'pentatonic' ? 'Pentatonic' : 'Major';
+        
+        document.getElementById('key-display-name').innerText = `${titleKR} (${baseNotes[currentRoot%12].n} ${titleEN})`;
         drawStaff();
     }
 
@@ -278,7 +316,11 @@
         updateUI(currentRoot);
     }
 
-    function toggleMinor() { isMinor = !isMinor; document.getElementById('minor-btn').innerText = isMinor?"단조(Minor)":"장조(Major)"; document.getElementById('minor-btn').classList.toggle('minor-mode'); updateUI(currentRoot); }
+    function changeScaleMode() { 
+        scaleMode = document.getElementById('scale-mode').value; 
+        updateUI(currentRoot); 
+    }
+    
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').classList.toggle('active'); document.getElementById('lock-btn').innerText = isLocked?"음계 고정: ON":"음계 고정: OFF"; }
     function toggleAllShow() { isAllShow = !isAllShow; document.getElementById('all-show-btn').classList.toggle('active'); document.getElementById('all-show-btn').innerText = isAllShow?"전체 표시: ON":"전체 표시: OFF"; updateUI(currentRoot); }
 
